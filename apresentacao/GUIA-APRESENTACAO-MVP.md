@@ -64,17 +64,27 @@ Repositório: [`filemind-rag`](https://github.com/faculdade-ads-senai/filemind-r
 - **Resposta**: `qwen2.5:3b` com temperatura 0,2 e instrução de usar só o contexto e citar as fontes como [1] e [2]. Se nenhum trecho passa do limite, responde "Nao encontrei informacoes relevantes nos seus arquivos." sem chamar o modelo.
 - **Arquitetura neutra**: provedores de embedding e de chat e o armazenamento ficam atrás de interfaces. Trocar o Ollama por um serviço gerenciado, ou a pasta pelo S3, não muda o núcleo.
 - **Pronto para nuvem**: `lambda_function.py` já tem os dois handlers, a indexação disparada pelo S3 e a pergunta via HTTP. Na demo, os mesmos módulos rodam no `servidor_local.py`.
-- **Testes**: 17 testes unitários, sem banco nem Ollama.
+- **Testes**: 19 testes unitários, sem banco nem Ollama.
 
 ## Roteiro da demo (cerca de 5 min)
 
 1. Login com a conta da demo.
 2. Enviar um arquivo de `ambiente-local/exemplos` e mostrar Na fila → Indexando → Pronto.
 3. Abrir o arquivo e fazer uma pergunta sobre ele. Mostrar a resposta e as fontes.
-4. Trocar para "Todos os arquivos" e fazer uma pergunta que cruza arquivos.
+4. Trocar para "Todos os arquivos" e fazer uma pergunta que cruza arquivos. Com `Notas de reunião.md` e `Roadmap Q3.md` enviados, "Em que mês do roadmap entra a busca por conteúdo decidida na reunião?" respondeu "agosto" citando os dois arquivos nas duas vezes em que foi testada. Já "O que foi decidido sobre a busca e quando ela entra no roadmap?" acertou só uma de duas vezes, então é melhor evitar.
 5. Fazer uma pergunta fora do conteúdo ("Qual a capital da França?") e mostrar que ele não inventa.
 
 Antes da aula: subir tudo, fazer uma pergunta para aquecer o modelo e ter prints ou vídeo como plano B.
+
+## Se um serviço cair (testado em 26/11)
+
+Cada serviço foi derrubado com a stack no ar, um de cada vez.
+
+| Serviço fora | O que acontece | Como volta |
+|---|---|---|
+| RAG | O envio funciona e o arquivo fica "Na fila". O chat mostra "Não foi possível concluir a operação (HTTP 500)". | Ao religar o RAG, o worker processa a fila sozinho, em cerca de 10 s. |
+| Ollama | O arquivo enviado vai para "Erro" e o chat mostra "Erro interno do RAG". O `/saude` do RAG continua "ok", porque não consulta o Ollama. | Religar o Ollama. O arquivo com erro só volta com `POST /indexar/{id}` no RAG (reindexou em 8 s), porque a tela ainda não tem botão. |
+| Backend | Login, lista e envio mostram "Não foi possível concluir a operação (HTTP 500)". A lista tem o botão "Atualizar arquivos". O chat continua respondendo, porque o RAG lê o banco direto. | Religar o backend, em cerca de 25 s. |
 
 ## Limitações e trabalhos futuros
 
