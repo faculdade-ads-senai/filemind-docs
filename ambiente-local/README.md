@@ -51,4 +51,4 @@ Para parar, feche as três janelas e rode `parar-banco.ps1`.
 
 ## Tempo de resposta
 
-Na CPU, sem GPU, cada resposta do chat leva cerca de 50 s, e a primeira depois de um tempo parado demora mais. Antes de uma apresentação, faça uma pergunta para aquecer o modelo.
+Na CPU, sem GPU, cada resposta do chat levou de 16 a 29 s no teste de 26/11/2026, e a primeira depois de um tempo parado demora mais. Antes de uma apresentação, faça uma pergunta para aquecer o modelo.

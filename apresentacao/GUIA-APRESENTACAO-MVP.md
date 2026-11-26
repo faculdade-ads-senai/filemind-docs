@@ -60,7 +60,8 @@ Repositório: [`filemind-rag`](https://github.com/faculdade-ads-senai/filemind-r
 - **Chunking**: trechos de até 2.000 caracteres com 200 de sobreposição. O corte prefere títulos e parágrafos, não quebra bloco de código e guarda o título da seção nos metadados.
 - **Embeddings**: `bge-m3` (1.024 dimensões, multilíngue) via Ollama. O provedor, o modelo e a versão ficam gravados com cada arquivo.
 - **Busca**: distância de cosseno no pgvector (`<=>`), top 5, filtrada pelo usuário e pelo mesmo modelo e versão de embedding. Um usuário nunca recebe trecho de outro.
-- **Resposta**: `qwen2.5:3b` com temperatura 0,2 e instrução de usar só o contexto. Se nenhum trecho é encontrado, responde "Nao encontrei informacoes relevantes nos seus arquivos." sem chamar o modelo.
+- **Similaridade mínima** (`RAG_SIMILARIDADE_MINIMA`, 0,35): o top 5 sempre traz "os menos distantes", mesmo sem relação com a pergunta. Trechos abaixo do limite são descartados. Na medição, as perguntas sobre os arquivos deram 0,41 a 0,62 e as de fora 0,19 a 0,35. Sem esse filtro, o modelo de 3B respondia "a capital da França é Paris" citando um arquivo do usuário.
+- **Resposta**: `qwen2.5:3b` com temperatura 0,2 e instrução de usar só o contexto e citar as fontes como [1] e [2]. Se nenhum trecho passa do limite, responde "Nao encontrei informacoes relevantes nos seus arquivos." sem chamar o modelo.
 - **Arquitetura neutra**: provedores de embedding e de chat e o armazenamento ficam atrás de interfaces. Trocar o Ollama por um serviço gerenciado, ou a pasta pelo S3, não muda o núcleo.
 - **Pronto para nuvem**: `lambda_function.py` já tem os dois handlers, a indexação disparada pelo S3 e a pergunta via HTTP. Na demo, os mesmos módulos rodam no `servidor_local.py`.
 - **Testes**: 17 testes unitários, sem banco nem Ollama.
@@ -79,5 +80,5 @@ Antes da aula: subir tudo, fazer uma pergunta para aquecer o modelo e ter prints
 
 - **Autenticação por token**: hoje o front envia o `idUsuario`. O próximo passo é o login emitir um token (JWT) e o backend derivar o usuário dele.
 - **Nuvem** (entrega de Computação em Nuvem): S3 no lugar da pasta, RAG em AWS Lambda, PostgreSQL gerenciado e monitoramento com Prometheus e Grafana.
-- **Desempenho**: na CPU cada resposta leva cerca de 50 s. Com GPU ou provedor gerenciado, cai para poucos segundos.
+- **Desempenho**: na CPU cada resposta levou de 16 a 29 s no teste de 26/11. O "não encontrei" sai em cerca de 5 s, porque não chama o modelo. Com GPU ou provedor gerenciado, cai para poucos segundos.
 - **Funcionalidades**: outros formatos (PDF, DOCX), pastas, reindexação pela tela (o RAG já tem `POST /indexar/{id}`) e renderização completa de Markdown (tabelas e código).
