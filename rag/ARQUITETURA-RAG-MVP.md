@@ -4,6 +4,8 @@ Data da decisão técnica: 02/11/2026.
 
 Status: direção confirmada por Luís para implementação. Nenhum recurso em nuvem foi criado e nenhuma inferência paga foi executada.
 
+> **Atualização de 25/11/2026.** O RAG foi implementado fora do backend, no repositório `filemind-rag` (Python), para virar AWS Lambda na entrega de nuvem. Na demo local, os provedores são o Ollama com `bge-m3` (embeddings de 1.024 dimensões) e `qwen2.5:3b` (resposta). Chunking, busca por cosseno com top 5, isolamento por usuário e o registro de provedor, modelo e versão seguem este documento. As rotas e o contrato entre as partes estão em [`ambiente-local/CONTRATO-LOCAL.md`](../ambiente-local/CONTRATO-LOCAL.md), e o resumo para a apresentação em [`apresentacao/GUIA-APRESENTACAO-MVP.md`](../apresentacao/GUIA-APRESENTACAO-MVP.md).
+
 ## 1. Objetivo
 
 Permitir que o usuário faça perguntas sobre seus arquivos Markdown e receba uma resposta baseada somente nos trechos recuperados de seus próprios documentos, com indicação das fontes utilizadas.
